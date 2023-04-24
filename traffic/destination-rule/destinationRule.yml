@@ -1,0 +1,21 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: my-destination-rule
+spec:
+  host: my-service
+  trafficPolicy:
+    loadBalancer:
+      policy: ROUND_ROBIN
+    outlierDetection:
+      consecutiveErrors: 5  # if 5 error during 30s trigger fail over for 60s(block traffic or failover to other dest) 
+      interval: 30s
+      baseEjectionTime: 60s
+    connectionPool:
+      tcp:
+        maxConnections: 100
+    http:
+      idleTimeout: 1m
+    failover:
+      - destination:
+          host: fallback

@@ -1,0 +1,30 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: my-wasm-filter
+spec:
+  workloadSelector:
+    labels:
+      app: my-app
+  configPatches:
+  - applyTo: HTTP_FILTER # Use the HTTP_FILTER filter chain, as opposed to NETWORK_FILTER
+    match:
+      context: SIDECAR_INBOUND # Apply this only to sidecar inbound traffic
+      listener:
+        filterChain:
+          filter:
+            name: "envoy.filters.network.http_connection_manager" # Correct filter name for Istio 1.11+
+    patch:
+      operation: INSERT_BEFORE
+      value:
+        name: envoy.wasm
+        typed_config:
+          "@type": "type.googleapis.com/envoy.extensions.filters.http.wasm.v3.Wasm"
+          config:
+            name: my-wasm-filter
+            vm_config:
+              code:
+                # path to the Wasm binary compiled from Rust
+                local: { inline_string: "path/to/my_wasm_filter.wasm" }
+              runtime: "envoy.wasm.runtime.v8"
+            configuration: { } # Optional configuration for the Wasm filter

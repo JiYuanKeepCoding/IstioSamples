@@ -1,0 +1,7 @@
+-A PREROUTING -m comment --comment "kubernetes service portals" -j KUBE-SERVICES
+
+-A KUBE-SERVICES -d 10.99.10.132/32 -p tcp -m comment --comment "default/reviews:http cluster IP" -m tcp --dport 9080 -j KUBE-SVC-53SQRANQXVHTJ6HK
+
+
+-A KUBE-SVC-53SQRANQXVHTJ6HK -m comment --comment "default/reviews:http -> 10.244.0.12:9080" -m statistic --mode random --probability 0.33333333349 -j KUBE-SEP-A4ITOE47V6RY3LXS
+-A KUBE-SVC-53SQRANQXVHTJ6HK -m comment --comment "default/reviews:http -> 10.244.0.13:9080" -m statistic --mode random --probability 0.50000000000 -j KUBE-SEP-GU2OTPBNGA6YWN7T
